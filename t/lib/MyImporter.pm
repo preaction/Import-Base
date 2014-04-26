@@ -8,7 +8,7 @@ use base 'Import::Base';
 sub modules {
     strict => [],
     warnings => [],
-    'Import::Into' => [],
+    'Module::Runtime' => [qw( use_module )],
     feature => [qw( :5.10 )],
 }
 

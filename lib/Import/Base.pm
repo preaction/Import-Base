@@ -12,9 +12,12 @@ sub modules {
 
 sub import {
     my ( $class, %args ) = @_;
-    my %modules = $class->modules( %args );
-    for my $mod ( keys %modules ) {
-        use_module( $mod )->import::into( $mod, @{ $modules{ $mod } } );
+    my $caller = caller;
+    my @modules = $class->modules( %args );
+    while ( @modules ) {
+        my $module = shift @modules;
+        my $imports = ref $modules[0] eq 'ARRAY' ? shift @modules : [];
+        use_module( $module )->import::into( $caller, @{ $imports } );
     }
 }
 
@@ -48,5 +51,5 @@ module boilerplate from 12 lines to 1.
 
 =head2 modules( %args )
 
-Prepare the list of modules to import. Returns a hash of MODULE => [ import()
-args ].
+Prepare the list of modules to import. %args comes from the caller's C<use> line.
+Returns a list of MODULE => [ import() args ]. MODULE may appear multiple times.
