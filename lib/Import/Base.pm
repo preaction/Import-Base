@@ -53,3 +53,24 @@ module boilerplate from 12 lines to 1.
 
 Prepare the list of modules to import. %args comes from the caller's C<use> line.
 Returns a list of MODULE => [ import() args ]. MODULE may appear multiple times.
+
+=head1 SEE ALSO
+
+=over
+
+=item ToolSet
+
+This is very similar, but does not appear to allow subclasses to remove imports from
+the list of things to be imported. By having the module list be a static array, we
+can modify it further in more levels of subclasses.
+
+=item Toolkit
+
+This one requires configuration files in a home directory, so is not shippable.
+
+=item rig
+
+This one also requires configuration files in a home directory, so is not shippable.
+
+=back
+
