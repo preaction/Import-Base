@@ -44,7 +44,13 @@ sub import {
             }
         }
 
-        use_module( $module )->import::into( $caller, @{ $imports } );
+        my $method = 'import::into';
+        if ( $module =~ /^-/ ) {
+            $method = 'unimport::out_of';
+            $module =~ s/^-//;
+        }
+
+        use_module( $module )->$method( $caller, @{ $imports } );
     }
 }
 
@@ -61,6 +67,7 @@ __END__
             strict => [],
             warnings => [],
             'My::Exporter' => [ 'foo', 'bar', 'baz' ],
+            '-warnings' => [qw( experimental::signatures )],
         );
     }
     1;
@@ -99,6 +106,18 @@ L<warnings|warnings>, and a L<feature|feature> set.
         );
     }
 
+Now we can consume our base module by doing:
+
+    package My::Module;
+    use My::Base;
+
+Which is equivalent to:
+
+    package My::Module;
+    use strict;
+    use warnings;
+    use feature qw( :5.14 );
+
 Now when we want to change our feature set, we only need to edit one file!
 
 =head2 Extended Base Module
@@ -134,6 +153,30 @@ classes and testing.
 
 Now all our classes just need to C<use My::Class> and all our test scripts just
 need to C<use My::Test>.
+
+=head2 Unimporting
+
+Sometimes instead of C<use Module> we need to do C<no Module>, to turn off
+C<strict> or C<warnings> categories for example.
+
+By prefixing the module name with a C<->, Import::Base will act like C<no>
+instead of C<use>.
+
+    package My::Base;
+    use base 'Import::Base';
+
+    sub modules {
+        my ( $class, %args ) = @_;
+        return (
+            'strict',
+            'warnings',
+            feature => [qw( :5.20 )],
+            '-warnings' => [qw( experimental::signatures )],
+        );
+    }
+
+Now the warnings for using the 5.20 subroutine signatures feature will be
+disabled.
 
 =head2 -exclude
 
