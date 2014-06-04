@@ -80,6 +80,61 @@ module boilerplate from 12 lines to 1.
 
 =head1 USAGE
 
+=head2 Base Module
+
+Creating a base module means extending Import::Base and overriding sub modules().
+
+A common base module should probably include L<strict|strict>,
+L<warnings|warnings>, and a L<feature|feature> set.
+
+    package My::Base;
+    use base 'Import::Base';
+
+    sub modules {
+        my ( $class, %args ) = @_;
+        return (
+            'strict',
+            'warnings',
+            feature => [qw( :5.14 )],
+        );
+    }
+
+Now when we want to change our feature set, we only need to edit one file!
+
+=head2 Extended Base Module
+
+We can further extend our base module to create more specialized modules for
+classes and testing.
+
+    package My::Class;
+    use base 'My::Base';
+
+    sub modules {
+        my ( $class, %args ) = @_;
+        return (
+            $class->SUPER::modules( %args ),
+            'Moo::Lax',
+            'Types::Standard' => [qw( :all )],
+        );
+    }
+
+    package My::Test;
+    use base 'My::Base';
+
+    sub modules {
+        my ( $class, %args ) = @_;
+        return (
+            $class->SUPER::modules( %args ),
+            'Test::More',
+            'Test::Deep',
+            'Test::Exception',
+            'Test::Differences',
+        );
+    }
+
+Now all our classes just need to C<use My::Class> and all our test scripts just
+need to C<use My::Test>.
+
 =head2 -exclude
 
 When importing a base module, you can use C<-exclude> to prevent certain things
