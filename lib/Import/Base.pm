@@ -64,13 +64,12 @@ __END__
     sub modules {
         my ( $class, %args ) = @_;
         return (
-            strict => [],
-            warnings => [],
+            'strict',
+            'warnings',
             'My::Exporter' => [ 'foo', 'bar', 'baz' ],
             '-warnings' => [qw( experimental::signatures )],
         );
     }
-    1;
 
     package My::Module;
     use My::Base;
@@ -90,6 +89,8 @@ module boilerplate from 12 lines to 1.
 =head2 Base Module
 
 Creating a base module means extending Import::Base and overriding sub modules().
+modules() returns a list of modules to import, optionally with a arrayref of arguments
+to be passed to the module's import() method.
 
 A common base module should probably include L<strict|strict>,
 L<warnings|warnings>, and a L<feature|feature> set.
