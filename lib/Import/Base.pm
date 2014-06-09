@@ -24,7 +24,6 @@ sub import {
         }
     }
 
-    my $caller = caller;
     my @modules = $class->modules( %args );
     while ( @modules ) {
         my $module = shift @modules;
@@ -50,7 +49,7 @@ sub import {
             $module =~ s/^-//;
         }
 
-        use_module( $module )->$method( $caller, @{ $imports } );
+        use_module( $module )->$method( 1, @{ $imports } );
     }
 }
 
