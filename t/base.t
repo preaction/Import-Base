@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 use lib 't/lib';
-use Test::Most;
+use Test::More;
 use Test::Import import => [qw( :all )];
 
 subtest 'simple base module' => sub {
