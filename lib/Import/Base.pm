@@ -204,6 +204,11 @@ Returns a list of MODULE => [ import() args ]. MODULE may appear multiple times.
 
 =over
 
+=item L<Import::Into|Import::Into>
+
+The module that provides the functionality to create this module. If Import::Base
+doesn't do what you want, look at Import::Into to build your own.
+
 =item L<ToolSet|ToolSet>
 
 This is very similar, but does not appear to allow subclasses to remove imports from
