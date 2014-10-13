@@ -192,6 +192,8 @@ Now we can choose one or more bundles to include:
     # t/lib/MyTest.pm
     use My::Base 'Test', 'Class';
 
+Bundles must always come before options. Bundle names cannot start with "-".
+
 =head2 Extended Base Module
 
 We can further extend our base module to create more specialized modules for
@@ -263,7 +265,14 @@ things).
     use My::Base -exclude => [ 'My::Exporter' => [ 'bar' ] ];
 
 NOTE: If you find yourself using C<-exclude> often, you would be better off
-removing the module or sub and only including it in those modules that need it.
+removing the module or sub and creating a bundle, or only including it in those
+modules that need it.
+
+=head2 Custom Arguments
+
+You can add any additional arguments to the C<use> line. The arguments list
+starts after the first key that starts with a '-'. To avoid conflicting with
+any future Import::Base feature, prefix all your custom arguments with '--'.
 
 =head1 METHODS
 
