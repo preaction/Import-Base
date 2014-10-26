@@ -252,6 +252,9 @@ modules that need it.
 Instead of providing C<@IMPORT_MODULES> and C<%IMPORT_BUNDLES>, you can override the
 C<modules()> method to do anything you want.
 
+One advantage the dynamic API has is the ability to remove modules from superclasses, or
+to have custom arguments (below).
+
     package My::Bundles;
     use base 'My::Base';
 
