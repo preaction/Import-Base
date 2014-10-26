@@ -3,16 +3,27 @@ package Import::Base;
 
 use strict;
 use warnings;
+use mro ();
 use Import::Into;
 use Module::Runtime qw( use_module );
 
 sub modules {
     my ( $class, $bundles, $args ) = @_;
     my @modules = ();
-    my %bundles = ();
-    return
-        @modules,
-        map { @{ $bundles{ $_ } } } grep { exists $bundles{ $_ } } @$bundles;
+
+    # Find all the modules from the static API
+    # Reverse the array to allow more-specific classes to override
+    # less-specific ones
+    for my $pkg ( reverse @{ mro::get_linear_isa( $class ) } ) {
+        no strict 'refs';
+        push @modules, @{ $pkg . "::IMPORT_MODULES" };
+        my %bundles = %{ $pkg . "::IMPORT_BUNDLES" };
+        push @modules, map { @{ $bundles{ $_ } } }
+            grep { exists $bundles{ $_ } }
+            @$bundles;
+    }
+
+    return @modules;
 }
 
 sub import {
@@ -69,34 +80,28 @@ __END__
 
 =head1 SYNOPSIS
 
+    ### Static API
     package My::Base;
     use base 'Import::Base';
-    sub modules {
-        my ( $class, $bundles, $args ) = @_;
 
-        # Modules that are always imported
-        my @modules = (
-            'strict',
-            'warnings',
-            'My::Exporter' => [ 'foo', 'bar', 'baz' ],
-            '-warnings' => [qw( uninitialized )],
-        );
+    # Modules that are always imported
+    our @IMPORT_MODULES = (
+        'strict',
+        'warnings',
+        'My::Exporter' => [ 'foo', 'bar', 'baz' ],
+        '-warnings' => [qw( uninitialized )],
+    );
 
-        # Optional bundles
-        my %bundles = (
-            with_signatures => [
-                'feature' => [qw( signatures )],
-                '-warnings' => [qw( experimental::signatures )]
-            ],
-            Test => [qw( Test::More Test::Deep )],
-        );
+    # Optional bundles
+    our %IMPORT_BUNDLES = (
+        with_signatures => [
+            'feature' => [qw( signatures )],
+            '-warnings' => [qw( experimental::signatures )]
+        ],
+        Test => [qw( Test::More Test::Deep )],
+    );
 
-        # Return an array of imports/unimports
-        return $class->SUPER::modules( $bundles, $args ),
-            @modules,
-            map { @{ $bundles{ $_ } } } grep { exists $bundles{ $_ } } @$bundles;
-    }
-
+    ### Consumer classes
     # Use only the default set of modules
     use My::Base;
 
@@ -118,9 +123,10 @@ module boilerplate from 12 lines to 1.
 
 =head2 Base Module
 
-Creating a base module means extending Import::Base and overriding sub modules().
-modules() returns a list of modules to import, optionally with a arrayref of arguments
-to be passed to the module's import() method.
+Creating a base module means extending Import::Base and creating an
+C<@IMPORT_MODULES> package variable with a list of modules to import,
+optionally with a arrayref of arguments to be passed to the module's import()
+method.
 
 A common base module should probably include L<strict|strict>,
 L<warnings|warnings>, and a L<feature|feature> set.
@@ -128,14 +134,11 @@ L<warnings|warnings>, and a L<feature|feature> set.
     package My::Base;
     use base 'Import::Base';
 
-    sub modules {
-        my ( $class, $bundles, $args ) = @_;
-        return (
-            'strict',
-            'warnings',
-            feature => [qw( :5.14 )],
-        );
-    }
+    our @IMPORT_MODULES = (
+        'strict',
+        'warnings',
+        feature => [qw( :5.14 )],
+    );
 
 Now we can consume our base module by doing:
 
@@ -153,7 +156,101 @@ Now when we want to change our feature set, we only need to edit one file!
 
 =head2 Import Bundles
 
-In addition to a set of modules, we can also create optional bundles.
+In addition to a set of modules, we can also create optional bundles with the
+C<%IMPORT_BUNDLES> package variable.
+
+    package My::Bundles;
+    use base 'My::Base';
+
+    # Modules that will always be included
+    our @IMPORT_MODULES
+        experimental => [qw( signatures )],
+    );
+
+    # Named bundles to include
+    our %IMPORT_BUNDLES = (
+        Class => [qw( Moose MooseX::Types )],
+        Role => [qw( Moose::Role MooseX::Types )],
+        Test => [qw( Test::More Test::Deep )],
+    );
+
+Now we can choose one or more bundles to include:
+
+    # lib/MyClass.pm
+    use My::Base 'Class';
+
+    # t/mytest.t
+    use My::Base 'Test';
+
+    # t/lib/MyTest.pm
+    use My::Base 'Test', 'Class';
+
+Bundles must always come before options. Bundle names cannot start with "-".
+
+=head2 Extended Base Module
+
+We can further extend our base module to create more specialized modules for
+classes and testing.
+
+    package My::Class;
+    use base 'My::Base';
+    our @IMPORT_MODULES = (
+        'Moo::Lax',
+        'Types::Standard' => [qw( :all )],
+    );
+
+    package My::Test;
+    use base 'My::Base';
+    our @IMPORT_MODULES = (
+        'Test::More',
+        'Test::Deep',
+        'Test::Exception',
+        'Test::Differences',
+    );
+
+Now all our classes just need to C<use My::Class> and all our test scripts just
+need to C<use My::Test>.
+
+=head2 Unimporting
+
+Sometimes instead of C<use Module> we need to do C<no Module>, to turn off
+C<strict> or C<warnings> categories for example.
+
+By prefixing the module name with a C<->, Import::Base will act like C<no>
+instead of C<use>.
+
+    package My::Base;
+    use base 'Import::Base';
+    our @IMPORT_MODULES = (
+        'strict',
+        'warnings',
+        feature => [qw( :5.20 )],
+        '-warnings' => [qw( experimental::signatures )],
+    );
+
+Now the warnings for using the 5.20 subroutine signatures feature will be
+disabled.
+
+=head2 -exclude
+
+When importing a base module, you can use C<-exclude> to prevent certain things
+from being imported (if, for example, they would conflict with existing
+things).
+
+    # Prevent the "warnings" module from being imported
+    use My::Base -exclude => [ 'warnings' ];
+
+    # Prevent the "bar" sub from My::Exporter from being imported
+    use My::Base -exclude => [ 'My::Exporter' => [ 'bar' ] ];
+
+NOTE: If you find yourself using C<-exclude> often, you would be better off
+removing the module or sub and creating a bundle, or only including it in those
+modules that need it.
+
+=head2 Dynamic API
+
+Instead of providing C<@IMPORT_MODULES> and C<%IMPORT_BUNDLES>, you can override the
+C<modules()> method to do anything you want.
 
     package My::Bundles;
     use base 'My::Base';
@@ -181,98 +278,14 @@ In addition to a set of modules, we can also create optional bundles.
             map { @{ $bundles{ $_ } } } grep { exists $bundles{ $_ } } @$bundles;
     }
 
-Now we can choose one or more bundles to include:
-
-    # lib/MyClass.pm
-    use My::Base 'Class';
-
-    # t/mytest.t
-    use My::Base 'Test';
-
-    # t/lib/MyTest.pm
-    use My::Base 'Test', 'Class';
-
-Bundles must always come before options. Bundle names cannot start with "-".
-
-=head2 Extended Base Module
-
-We can further extend our base module to create more specialized modules for
-classes and testing.
-
-    package My::Class;
-    use base 'My::Base';
-
-    sub modules {
-        my ( $class, $bundles, $args ) = @_;
-        return (
-            $class->SUPER::modules( $bundles, $args ),
-            'Moo::Lax',
-            'Types::Standard' => [qw( :all )],
-        );
-    }
-
-    package My::Test;
-    use base 'My::Base';
-
-    sub modules {
-        my ( $class, $bundles, $args ) = @_;
-        return (
-            $class->SUPER::modules( $bundles, $args ),
-            'Test::More',
-            'Test::Deep',
-            'Test::Exception',
-            'Test::Differences',
-        );
-    }
-
-Now all our classes just need to C<use My::Class> and all our test scripts just
-need to C<use My::Test>.
-
-=head2 Unimporting
-
-Sometimes instead of C<use Module> we need to do C<no Module>, to turn off
-C<strict> or C<warnings> categories for example.
-
-By prefixing the module name with a C<->, Import::Base will act like C<no>
-instead of C<use>.
-
-    package My::Base;
-    use base 'Import::Base';
-
-    sub modules {
-        my ( $class, $bundles, $args ) = @_;
-        return (
-            'strict',
-            'warnings',
-            feature => [qw( :5.20 )],
-            '-warnings' => [qw( experimental::signatures )],
-        );
-    }
-
-Now the warnings for using the 5.20 subroutine signatures feature will be
-disabled.
-
-=head2 -exclude
-
-When importing a base module, you can use C<-exclude> to prevent certain things
-from being imported (if, for example, they would conflict with existing
-things).
-
-    # Prevent the "warnings" module from being imported
-    use My::Base -exclude => [ 'warnings' ];
-
-    # Prevent the "bar" sub from My::Exporter from being imported
-    use My::Base -exclude => [ 'My::Exporter' => [ 'bar' ] ];
-
-NOTE: If you find yourself using C<-exclude> often, you would be better off
-removing the module or sub and creating a bundle, or only including it in those
-modules that need it.
+Using the above boilerplate will ensure that you start with all the basic functionality.
 
 =head2 Custom Arguments
 
-You can add any additional arguments to the C<use> line. The arguments list
-starts after the first key that starts with a '-'. To avoid conflicting with
-any future Import::Base feature, prefix all your custom arguments with '--'.
+If you are using the L</Dynamic API>, you can add any additional arguments to
+the C<use> line. The arguments list starts after the first key that starts with
+a '-'. To avoid conflicting with any future Import::Base feature, prefix all
+your custom arguments with '--'.
 
 =head1 METHODS
 
