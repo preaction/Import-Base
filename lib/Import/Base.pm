@@ -395,6 +395,11 @@ Here is an example for documenting your own base modules
 The module that provides the functionality to create this module. If Import::Base
 doesn't do what you want, look at Import::Into to build your own.
 
+=item L<perl5|perl5>
+
+This module is very similar, and has a bunch of built-in bundles and features for
+quickly importing Perl feature sets.
+
 =item L<ToolSet|ToolSet>
 
 This is very similar, but does not appear to allow subclasses to remove imports from
