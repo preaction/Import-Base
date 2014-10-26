@@ -296,6 +296,93 @@ $args is a hash ref of generic arguments, if any.
 
 Returns a list of MODULE => [ import() args ]. MODULE may appear multiple times.
 
+=head1 DOCUMENTATION BOILERPLATE
+
+Here is an example for documenting your own base modules
+
+    =head1 SYNOPSIS
+
+        package MyModule;
+        use My::Base;
+
+        use My::Base 'Class';
+        use My::Base 'Role';
+        use My::Base 'Test';
+
+    =head1 DESCRIPTION
+
+    This is the base module that all {{PROJECT}} files should use.
+
+    This module always imports the following into your namespace:
+
+    =over
+
+    =item L<strict>
+
+    =item L<warnings>
+
+    =item L<feature>
+
+    Currently the 5.20 feature bundle
+
+    =item L<experimental> 'signatures' 'postderef'
+
+    We are using the 5.20 experimental signatures and postfix deref syntax.
+
+    =back
+
+    =head1 BUNDLES
+
+    The following bundles are available. You may import one or more of these by name.
+
+    =head2 Class
+
+    The class bundle makes your package into a class and includes:
+
+    =over 4
+
+    =item L<Moo::Lax>
+
+    =item L<Types::Standard> ':all'
+
+    =back
+
+    =head2 Role
+
+    The role bundle makes your package into a role and includes:
+
+    =over 4
+
+    =item L<Moo::Role::Lax>
+
+    =item L<Types::Standard> ':all'
+
+    =back
+
+    =head2 Test
+
+    The test bundle includes:
+
+    =over 4
+
+    =item L<Test::More>
+
+    =item L<Test::Deep>
+
+    =item L<Test::Differences>
+
+    =item L<Test::Exception>
+
+    =back
+
+    =head1 SEE ALSO
+
+    =over
+
+    =item L<Import::Base>
+
+    =back
+
 =head1 SEE ALSO
 
 =over
