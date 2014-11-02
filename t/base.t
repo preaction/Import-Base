@@ -15,6 +15,7 @@ subtest 'static API' => sub {
                 use MyStatic;
                 $foo = 0;
             };
+            delete $SIG{__WARN__};
 
             like $@, qr/Global symbol "\$foo" requires explicit package name/;
             ok !$warn, 'no warnings' or diag $warn;
@@ -29,6 +30,8 @@ subtest 'static API' => sub {
                 use MyStatic;
                 my $foo = 0 + "foo";
             };
+            delete $SIG{__WARN__};
+            ok !$@, 'lived' or diag $@;
             like $warn, qr/Argument "foo" isn't numeric in addition/;
         };
     };
@@ -43,6 +46,7 @@ subtest 'static API' => sub {
                 use MyStatic;
                 catdir( "", "foo" );
             };
+            delete $SIG{__WARN__};
 
             like $@, qr/\QUndefined subroutine &static::without::bundle::catdir called/;
             ok !$warn, 'no warnings' or diag $warn;
@@ -57,8 +61,10 @@ subtest 'static API' => sub {
                 use MyStatic 'Spec';
                 catdir( "", "foo" );
             };
+            delete $SIG{__WARN__};
 
             unlike $@, qr/\QUndefined subroutine &static::with::bundle::catdir called/;
+            ok !$@, 'lived' or diag $@;
             ok !$warn, 'no warnings' or diag $warn;
         };
 
@@ -72,6 +78,8 @@ subtest 'static API' => sub {
                 my $foo;
                 my $bar = $foo . " bar";
             };
+            delete $SIG{__WARN__};
+            ok !$@, 'lived' or diag $@;
             unlike $warn, qr/Use of uninitialized value \$foo in concatenation/;
             ok !$warn, 'no warnings' or diag $warn;
         };
@@ -89,6 +97,7 @@ subtest 'static API' => sub {
                 $bar = "foo";
                 $$bar = 1;
             };
+            delete $SIG{__WARN__};
 
             unlike $@, qr/Global symbol "\$foo" requires explicit package name/;
             like $@, qr/\QCan't use string ("foo") as a SCALAR ref/;
@@ -105,6 +114,7 @@ subtest 'static API' => sub {
                     use MyStaticInherits;
                     catfile( "", "foo" );
                 };
+                delete $SIG{__WARN__};
 
                 like $@, qr/\QUndefined subroutine &static::without::inherited::bundle::catfile called/;
                 ok !$warn, 'no warnings' or diag $warn;
@@ -119,9 +129,11 @@ subtest 'static API' => sub {
                 catfile( "", "foo" );
                 catdir( "", "foo" );
             };
+            delete $SIG{__WARN__};
 
             unlike $@, qr/\QUndefined subroutine &static::with::inherited::bundle::catdir called/;
             unlike $@, qr/\QUndefined subroutine &static::with::inherited::bundle::catfile called/;
+            ok !$@, 'lived' or diag $@;
             ok !$warn, 'no warnings' or diag $warn;
         };
     };
@@ -138,6 +150,7 @@ subtest 'dynamic API' => sub {
                 use MyDynamic;
                 $foo = 0;
             };
+            delete $SIG{__WARN__};
 
             like $@, qr/Global symbol "\$foo" requires explicit package name/;
             ok !$warn, 'no warnings' or diag $warn;
@@ -152,7 +165,9 @@ subtest 'dynamic API' => sub {
                 use MyDynamic;
                 my $foo = 0 + "foo";
             };
+            delete $SIG{__WARN__};
             like $warn, qr/Argument "foo" isn't numeric in addition/;
+            ok !$@, 'lived' or diag $@;
         };
     };
 
@@ -166,6 +181,7 @@ subtest 'dynamic API' => sub {
                 use MyDynamic;
                 catdir( "", "foo" );
             };
+            delete $SIG{__WARN__};
 
             like $@, qr/\QUndefined subroutine &dynamic::without::bundle::catdir called/;
             ok !$warn, 'no warnings' or diag $warn;
@@ -180,8 +196,10 @@ subtest 'dynamic API' => sub {
                 use MyDynamic 'Spec';
                 catdir( "", "foo" );
             };
+            delete $SIG{__WARN__};
 
             unlike $@, qr/\QUndefined subroutine &dynamic::with::bundle::catdir called/;
+            ok !$@, 'lived' or diag $@;
             ok !$warn, 'no warnings' or diag $warn;
         };
 
@@ -195,8 +213,10 @@ subtest 'dynamic API' => sub {
                 my $foo;
                 my $bar = $foo . " bar";
             };
+            delete $SIG{__WARN__};
             unlike $warn, qr/Use of uninitialized value \$foo in concatenation/;
             ok !$warn, 'no warnings' or diag $warn;
+            ok !$@, 'lived' or diag $@;
         };
     };
 
@@ -212,6 +232,7 @@ subtest 'dynamic API' => sub {
                 $bar = "foo";
                 $$bar = 1;
             };
+            delete $SIG{__WARN__};
 
             unlike $@, qr/Global symbol "\$foo" requires explicit package name/;
             like $@, qr/\QCan't use string ("foo") as a SCALAR ref/;
@@ -228,6 +249,7 @@ subtest 'dynamic API' => sub {
                     use MyDynamicInherits;
                     catfile( "", "foo" );
                 };
+                delete $SIG{__WARN__};
 
                 like $@, qr/\QUndefined subroutine &dynamic::without::inherited::bundle::catfile called/;
                 ok !$warn, 'no warnings' or diag $warn;
@@ -242,9 +264,11 @@ subtest 'dynamic API' => sub {
                 catfile( "", "foo" );
                 catdir( "", "foo" );
             };
+            delete $SIG{__WARN__};
 
             unlike $@, qr/\QUndefined subroutine &dynamic::with::inherited::bundle::catdir called/;
             unlike $@, qr/\QUndefined subroutine &dynamic::with::inherited::bundle::catfile called/;
+            ok !$@, 'lived' or diag $@;
             ok !$warn, 'no warnings' or diag $warn;
         };
     };
