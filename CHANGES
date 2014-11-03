@@ -1,0 +1,52 @@
+Changelog for Import-Base
+
+0.007 2014-11-03T00:24:51
+ - allow cpanfile to be built as part of the release
+ - add CHANGES and cpanfile for new dist.ini
+ - update dist.ini for new best practices
+ - make sure we only check for warnings from the eval
+ - ensure there are no warnings
+ - add best practices about backward compatibility
+
+0.006 2014-10-26T23:40:36
+ - release v0.006
+ - add perl5 to SEE ALSO
+ - add a rationale for the dynamic API
+ - reorganize and consolidate tests
+ - add documentation boilerplate
+ - don't build 5.8
+ - add static package var api
+ - add minimum perl version
+ - add travis.yml
+
+0.005 2014-10-13T06:06:48
+ - release v0.005
+ - clarify docs on arguments and adding custom args
+ - add import bundles to use fewer modules
+ - SurgicalPodWeaver -> PodWeaver
+ - add Import::Into to see also
+
+0.004 2014-06-09T04:42:09
+ - release v0.004
+ - fix prereqs
+ - remove Test::Most since we only need Test::More
+ - use numbered level when importing. thanks haarg!
+ - add test for inheriting from a base module
+ - explain what modules() returns and remove empty []
+
+0.003 2014-06-04T22:16:00
+ - implement unimport "-Module"
+ - add usage examples
+ - add -exclude option when importing a base module
+
+0.002 2014-04-27T02:27:17
+ - update to version 0.002
+ - remove feature from the test module
+
+0.001 2014-04-26T22:39:23
+ - add links because it's nicer
+ - add build artifacts and base contributing file
+ - add SEE ALSO section with some similar modules
+ - use an array to order imports instead of a hash
+ - initial Import::Base implementation
+
