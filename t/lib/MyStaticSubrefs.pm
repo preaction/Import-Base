@@ -3,6 +3,7 @@ package
 
 use strict;
 use warnings;
+use Test::More;
 use base 'MyStatic';
 
 our @IMPORT_MODULES = (
@@ -18,14 +19,16 @@ our %IMPORT_BUNDLES = (
         '-strict',
         sub {
             my ( $bundles, $args ) = @_;
+            like $args->{package}, qr{^static::subref};
             return '-warnings';
         },
     ],
     Inherit => [
         sub {
             my ( $bundles, $args ) = @_;
+            like $args->{package}, qr{^static::subref};
             no strict 'refs';
-            my $class = caller 1;
+            my $class = $args->{package};
             push @{ "${class}::ISA" }, 'inherited';
             return;
         },

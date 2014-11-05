@@ -11,7 +11,7 @@ subtest 'static API' => sub {
             my $warn;
             local $SIG{__WARN__} = sub { $warn = $_[0] };
             eval q{
-                package static::subrefs;
+                package static::subref;
                 #no strict; no warnings;
                 use MyStaticSubrefs;
                 my $foo;
@@ -69,7 +69,7 @@ subtest 'dynamic API' => sub {
             my $warn;
             local $SIG{__WARN__} = sub { $warn = $_[0] };
             eval q{
-                package dynamic::subrefs;
+                package dynamic::subref;
                 #no strict; no warnings;
                 use MyDynamicSubrefs;
                 my $foo;

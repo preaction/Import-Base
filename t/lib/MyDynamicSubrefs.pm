@@ -3,10 +3,12 @@ package
 
 use strict;
 use warnings;
+use Test::More;
 use base 'MyDynamic';
 
 sub modules {
     my ( $class, $bundles, $args ) = @_;
+    like $args->{package}, qr{^dynamic::subref};
     my @modules = (
         '-strict' => sub { return [ 'vars' ] },
         sub { return -warnings => [qw( uninitialized )] },
@@ -19,14 +21,16 @@ sub modules {
             '-strict',
             sub {
                 my ( $bundles, $args ) = @_;
+                like $args->{package}, qr{^dynamic::subref};
                 return '-warnings';
             },
         ],
         Inherit => [
             sub {
                 my ( $bundles, $args ) = @_;
+                like $args->{package}, qr{^dynamic::subref};
                 no strict 'refs';
-                my $class = caller 1;
+                my $class = $args->{package};
                 push @{ "${class}::ISA" }, 'inherited';
                 return;
             },

@@ -46,6 +46,9 @@ sub import {
         }
     }
 
+    # Add internal Import::Base args
+    $args{package} = scalar caller(0);
+
     my @cb_args = ( \@bundles, \%args );
     my @modules = $class->modules( @cb_args );
     while ( @modules ) {
@@ -294,7 +297,12 @@ Sub references get an arrayref of bundles being requested, and a hashref of extr
 arguments. Arguments from the calling side start with a '-'. Arguments from Import::Base
 do not. Possible arguments are:
 
+    package         - The package we are exporting to
     -exclude        - The exclusions, see L</"-exclude">.
+
+Using C<package>, a subref could check or alter C<@ISA>, work with the object's
+metaclass (if you're using one), or export additional symbols not set up for
+export.
 
 =head2 Custom Arguments
 
