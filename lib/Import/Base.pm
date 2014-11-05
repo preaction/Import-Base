@@ -293,9 +293,9 @@ Plain strings are module names. Array references are arguments to import.
 
 =head2 Subref Arguments
 
-Sub references get an arrayref of bundles being requested, and a hashref of extra
-arguments. Arguments from the calling side start with a '-'. Arguments from Import::Base
-do not. Possible arguments are:
+Sub references get an arrayref of bundles being requested, and a hashref of
+extra arguments. Arguments from the calling side start with a '-'. Arguments
+from Import::Base do not. Possible arguments are:
 
     package         - The package we are exporting to
     -exclude        - The exclusions, see L</"-exclude">.
@@ -310,6 +310,9 @@ When using L</"Subref Callbacks">, you can add additional arguments to the
 C<use> line. The arguments list starts after the first key that starts with a
 '-'. To avoid conflicting with any future Import::Base feature, prefix all your
 custom arguments with '--'.
+
+    use My::Base -exclude => [qw( strict )], --custom => "arguments";
+    # Subrefs will get $args{--custom} set to "arguments"
 
 =head2 Dynamic API
 
