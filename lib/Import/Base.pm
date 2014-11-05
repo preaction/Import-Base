@@ -46,9 +46,19 @@ sub import {
         }
     }
 
-    my @modules = $class->modules( \@bundles, \%args );
+    my @cb_args = ( \@bundles, \%args );
+    my @modules = $class->modules( @cb_args );
     while ( @modules ) {
+        if ( ref $modules[0] eq 'CODE' ) {
+            unshift @modules, shift( @modules )->( @cb_args );
+            next;
+        }
+
         my $module = shift @modules;
+        if ( ref $modules[0] eq 'CODE' ) {
+            unshift @modules, shift( @modules )->( @cb_args );
+        }
+
         my $imports = ref $modules[0] eq 'ARRAY' ? shift @modules : [];
 
         if ( exists $exclude->{ $module } ) {
@@ -90,6 +100,11 @@ __END__
         'warnings',
         'My::Exporter' => [ 'foo', 'bar', 'baz' ],
         '-warnings' => [qw( uninitialized )],
+        # Callback to generate modules to import
+        sub {
+            my ( $bundles, $args ) = @_;
+            return "My::MoreModule" => [qw( fuzz )];
+        },
     );
 
     # Optional bundles
@@ -250,6 +265,22 @@ things).
 NOTE: If you find yourself using C<-exclude> often, you would be better off
 removing the module or sub and creating a bundle, or only including it in those
 modules that need it.
+
+=head2 Subref Callbacks
+
+To get a little bit of dynamic support in the otherwise static module lists, you may
+add sub references to generate modules or imports.
+
+    package My::Base;
+    use base 'Import::Base';
+    our @IMPORT_MODULES = (
+        sub { return qw( strict warnings ) },
+        feature => sub { [qw( :5.20 )] },
+    );
+
+    # strict, warnings, and 5.20 features will be imported
+
+Plain strings are module names. Array references are arguments to import.
 
 =head2 Dynamic API
 
