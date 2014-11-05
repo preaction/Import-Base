@@ -274,13 +274,34 @@ add sub references to generate modules or imports.
     package My::Base;
     use base 'Import::Base';
     our @IMPORT_MODULES = (
-        sub { return qw( strict warnings ) },
-        feature => sub { [qw( :5.20 )] },
+        sub {
+            my ( $bundles, $args ) = @_;
+            return qw( strict warnings );
+        },
+        feature => sub {
+            my ( $bundles, $args ) = @_;
+            return [qw( :5.20 )];
+        },
     );
 
     # strict, warnings, and 5.20 features will be imported
 
 Plain strings are module names. Array references are arguments to import.
+
+=head2 Subref Arguments
+
+Sub references get an arrayref of bundles being requested, and a hashref of extra
+arguments. Arguments from the calling side start with a '-'. Arguments from Import::Base
+do not. Possible arguments are:
+
+    -exclude        - The exclusions, see L</"-exclude">.
+
+=head2 Custom Arguments
+
+When using L</"Subref Callbacks">, you can add additional arguments to the
+C<use> line. The arguments list starts after the first key that starts with a
+'-'. To avoid conflicting with any future Import::Base feature, prefix all your
+custom arguments with '--'.
 
 =head2 Dynamic API
 
@@ -317,13 +338,6 @@ to have custom arguments (below).
     }
 
 Using the above boilerplate will ensure that you start with all the basic functionality.
-
-=head2 Custom Arguments
-
-If you are using the L</Dynamic API>, you can add any additional arguments to
-the C<use> line. The arguments list starts after the first key that starts with
-a '-'. To avoid conflicting with any future Import::Base feature, prefix all
-your custom arguments with '--'.
 
 =head1 METHODS
 
