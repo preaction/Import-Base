@@ -120,7 +120,9 @@ __END__
     our @IMPORT_MODULES = (
         'strict',
         'warnings',
+        # Import only these subs
         'My::Exporter' => [ 'foo', 'bar', 'baz' ],
+        # Disable uninitialized warnings
         '-warnings' => [qw( uninitialized )],
         # Callback to generate modules to import
         sub {
