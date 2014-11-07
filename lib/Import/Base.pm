@@ -16,6 +16,7 @@ sub modules {
     # less-specific ones
     for my $pkg ( reverse @{ mro::get_linear_isa( $class ) } ) {
         no strict 'refs';
+        no warnings 'once';
         push @modules, @{ $pkg . "::IMPORT_MODULES" };
         my %bundles = %{ $pkg . "::IMPORT_BUNDLES" };
         push @modules, map { @{ $bundles{ $_ } } }
