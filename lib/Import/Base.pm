@@ -350,18 +350,17 @@ If you need even more control over the order, consider the L</"Dynamic API">.
 =head2 Subref Callbacks
 
 To get a little bit of dynamic support in the otherwise static module lists, you may
-add sub references to generate modules or imports.
+add sub references to generate module imports.
 
     package My::Base;
     use base 'Import::Base';
     our @IMPORT_MODULES = (
         sub {
             my ( $bundles, $args ) = @_;
-            return qw( strict warnings );
-        },
-        feature => sub {
-            my ( $bundles, $args ) = @_;
-            return [qw( :5.20 )];
+            return (
+                qw( strict warnings ),
+                feature => [qw( :5.20 )],
+            );
         },
     );
 

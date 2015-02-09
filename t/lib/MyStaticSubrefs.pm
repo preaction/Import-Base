@@ -7,7 +7,7 @@ use Test::More;
 use base 'MyStatic';
 
 our @IMPORT_MODULES = (
-    '-strict' => sub { return [ 'vars' ] },
+    '-strict' => [ 'vars' ],
     sub { return -warnings => [qw( uninitialized )] },
 );
 

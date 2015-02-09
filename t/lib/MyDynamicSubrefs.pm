@@ -10,7 +10,7 @@ sub modules {
     my ( $class, $bundles, $args ) = @_;
     like $args->{package}, qr{^dynamic::subref};
     my @modules = (
-        '-strict' => sub { return [ 'vars' ] },
+        '-strict' => [ 'vars' ],
         sub { return -warnings => [qw( uninitialized )] },
     );
     my %bundles = (
