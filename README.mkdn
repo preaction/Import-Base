@@ -4,7 +4,7 @@ Import::Base - Import a set of modules into the calling module
 
 # VERSION
 
-version 0.010
+version 0.011
 
 # STATUS
 
@@ -249,24 +249,28 @@ If you need even more control over the order, consider the ["Dynamic API"](#dyna
 ## Subref Callbacks
 
 To get a little bit of dynamic support in the otherwise static module lists, you may
-add sub references to generate modules or imports.
+add sub references to generate module imports.
 
     package My::Base;
     use base 'Import::Base';
     our @IMPORT_MODULES = (
         sub {
             my ( $bundles, $args ) = @_;
-            return qw( strict warnings );
-        },
-        feature => sub {
-            my ( $bundles, $args ) = @_;
-            return [qw( :5.20 )];
+            return (
+                qw( strict warnings ),
+                feature => [qw( :5.20 )],
+            );
         },
     );
 
     # strict, warnings, and 5.20 features will be imported
 
 Plain strings are module names. Array references are arguments to import.
+
+**NOTE:** Subrefs cannot return modules with `<` or `>` to control
+ordering. Subrefs are run after the order has already been determined, while
+the imports are being executed. Subrefs can assume that imports before them
+have already been completed.
 
 ## Subref Arguments
 
@@ -280,6 +284,25 @@ from Import::Base do not. Possible arguments are:
 Using `package`, a subref could check or alter `@ISA`, work with the object's
 metaclass (if you're using one), or export additional symbols not set up for
 export.
+
+Here's an example for applying a [Moo::Role](https://metacpan.org/pod/Moo::Role) when importing a bundle:
+
+    package My::Base;
+    use base 'Import::Base';
+    our %IMPORT_BUNDLES = (
+        'Plugin' => [
+            'Moo',
+            # Plugins require the "My::Plugin" role
+            sub {
+                my ( $bundles, $args ) = @_;
+                Moo::Role->apply_role_to_package( $args->{package}, 'My::Plugin' );
+                return;
+            },
+        ],
+    );
+
+    package My::Custom::Plugin;
+    use My::Base 'Plugin';
 
 ## Custom Arguments
 
@@ -478,7 +501,7 @@ Doug Bell <preaction@cpan.org>
 
 # COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2014 by Doug Bell.
+This software is copyright (c) 2015 by Doug Bell.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

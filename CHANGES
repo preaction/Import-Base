@@ -1,24 +1,34 @@
 Changelog for Import-Base
 
-0.010 2014-12-24T05:59:24
+0.011 2015-02-09T01:42:48
+ - run subref callbacks during the import process
+ - remove feature allowing subs to make import array
+ - add dzil plugin for prereqs and compile tests
+ - remove root dotfiles and root ini files from dist
+ - switch to dzil Git::GatherDir
+ - fix contributors dependency
+ - update copyright year
+ - add contributors dzil plugin for proper attribution
+
+0.010 2014-12-24T05:59:24Z
  - add dzil tag annotation with name, date, and changelog
  - fix warnings if a class doesn't have IMPORT_*
  - remove note about custom args from dynamic api
  - update weaver.ini from new skeleton
 
-0.009 2014-11-06T06:03:29
+0.009 2014-11-06T06:03:29Z
  - release v0.009
  - add some explanatory comments to SYNOPSIS
  - add < and > order control prefixes
 
-0.008 2014-11-05T04:35:38
+0.008 2014-11-05T04:35:38Z
  - release v0.008
  - add example of custom arguments
  - add package arg to subref callbacks
  - add docs about subref arguments
  - add subrefs for dynamic bits in the static API
 
-0.007 2014-11-03T00:24:59
+0.007 2014-11-03T00:24:59Z
  - release v0.007
  - allow cpanfile to be built as part of the release
  - add CHANGES and cpanfile for new dist.ini
@@ -27,7 +37,7 @@ Changelog for Import-Base
  - ensure there are no warnings
  - add best practices about backward compatibility
 
-0.006 2014-10-26T23:40:36
+0.006 2014-10-26T23:40:36Z
  - release v0.006
  - add perl5 to SEE ALSO
  - add a rationale for the dynamic API
@@ -38,14 +48,14 @@ Changelog for Import-Base
  - add minimum perl version
  - add travis.yml
 
-0.005 2014-10-13T06:06:48
+0.005 2014-10-13T06:06:48Z
  - release v0.005
  - clarify docs on arguments and adding custom args
  - add import bundles to use fewer modules
  - SurgicalPodWeaver -> PodWeaver
  - add Import::Into to see also
 
-0.004 2014-06-09T04:42:09
+0.004 2014-06-09T04:42:09Z
  - release v0.004
  - fix prereqs
  - remove Test::Most since we only need Test::More
@@ -53,16 +63,16 @@ Changelog for Import-Base
  - add test for inheriting from a base module
  - explain what modules() returns and remove empty []
 
-0.003 2014-06-04T22:16:00
+0.003 2014-06-04T22:16:00Z
  - implement unimport "-Module"
  - add usage examples
  - add -exclude option when importing a base module
 
-0.002 2014-04-27T02:27:17
+0.002 2014-04-27T02:27:17Z
  - update to version 0.002
  - remove feature from the test module
 
-0.001 2014-04-26T22:39:23
+0.001 2014-04-26T22:39:23Z
  - add links because it's nicer
  - add build artifacts and base contributing file
  - add SEE ALSO section with some similar modules

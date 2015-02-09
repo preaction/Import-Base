@@ -19,7 +19,7 @@ my %module_build_args = (
     "Doug Bell <preaction\@cpan.org>"
   ],
   "dist_name" => "Import-Base",
-  "dist_version" => "0.010",
+  "dist_version" => "0.011",
   "license" => "perl",
   "module_name" => "Import::Base",
   "recommends" => {},
@@ -35,7 +35,9 @@ my %module_build_args = (
   "script_files" => [],
   "test_requires" => {
     "Carp" => 0,
-    "Test::Compile" => 0,
+    "File::Spec" => 0,
+    "IO::Handle" => 0,
+    "IPC::Open3" => 0,
     "Test::More" => 0
   }
 );
@@ -43,8 +45,10 @@ my %module_build_args = (
 
 my %fallback_build_requires = (
   "Carp" => 0,
+  "File::Spec" => 0,
+  "IO::Handle" => 0,
+  "IPC::Open3" => 0,
   "Module::Build" => "0.28",
-  "Test::Compile" => 0,
   "Test::More" => 0
 );
 
