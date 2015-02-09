@@ -51,21 +51,43 @@ sub import {
     $args{package} = scalar caller(0);
 
     # Prepare the modules to load
+    # First pass determines the order to load
     my ( @first_load, @last_load );
     my @cb_args = ( \@bundles, \%args );
     my @modules = $class->modules( @cb_args );
     while ( @modules ) {
         if ( ref $modules[0] eq 'CODE' ) {
-            unshift @modules, shift( @modules )->( @cb_args );
+            push @first_load, shift @modules;
             next;
         }
 
         my $module = shift @modules;
-        if ( ref $modules[0] eq 'CODE' ) {
-            unshift @modules, shift( @modules )->( @cb_args );
+        my $imports = ref $modules[0] eq 'ARRAY' ? shift @modules : [];
+
+        # Determine the module order
+        if ( $module =~ /^</ ) {
+            $module =~ s/^<//;
+            unshift @first_load, $module => $imports;
+        }
+        elsif ( $module =~ /^>/ ) {
+            $module =~ s/^>//;
+            push @last_load, $module => $imports;
+        }
+        else {
+            push @first_load, $module => $imports;
+        }
+    }
+
+    # Second pass loads the modules
+    my @loads = ( @first_load, @last_load );
+    while ( my $load = shift @loads ) {
+        if ( ref $load eq 'CODE' ) {
+            unshift @loads, $load->( @cb_args );
+            next;
         }
 
-        my $imports = ref $modules[0] eq 'ARRAY' ? shift @modules : [];
+        my $module = $load;
+        my $imports = ref $loads[0] eq 'ARRAY' ? shift @loads : [];
 
         if ( exists $exclude->{ $module } ) {
             if ( defined $exclude->{ $module } ) {
@@ -80,23 +102,6 @@ sub import {
                 next;
             }
         }
-
-        # Determine the module order
-        if ( $module =~ /^</ ) {
-            $module =~ s/^<//;
-            unshift @first_load, [ $module => $imports ];
-        }
-        elsif ( $module =~ /^>/ ) {
-            $module =~ s/^>//;
-            push @last_load, [ $module => $imports ];
-        }
-        else {
-            push @first_load, [ $module => $imports ];
-        }
-    }
-
-    for my $pair ( @first_load, @last_load ) {
-        my ( $module, $imports ) = @{ $pair };
 
         my $method = 'import::into';
         if ( $module =~ /^-/ ) {
@@ -368,6 +373,11 @@ add sub references to generate module imports.
 
 Plain strings are module names. Array references are arguments to import.
 
+B<NOTE:> Subrefs cannot return modules with C<E<lt>> or C<E<gt>> to control
+ordering. Subrefs are run after the order has already been determined, while
+the imports are being executed. Subrefs can assume that imports before them
+have already been completed.
+
 =head2 Subref Arguments
 
 Sub references get an arrayref of bundles being requested, and a hashref of
@@ -380,6 +390,25 @@ from Import::Base do not. Possible arguments are:
 Using C<package>, a subref could check or alter C<@ISA>, work with the object's
 metaclass (if you're using one), or export additional symbols not set up for
 export.
+
+Here's an example for applying a L<Moo::Role> when importing a bundle:
+
+    package My::Base;
+    use base 'Import::Base';
+    our %IMPORT_BUNDLES = (
+        'Plugin' => [
+            'Moo',
+            # Plugins require the "My::Plugin" role
+            sub {
+                my ( $bundles, $args ) = @_;
+                Moo::Role->apply_role_to_package( $args->{package}, 'My::Plugin' );
+                return;
+            },
+        ],
+    );
+
+    package My::Custom::Plugin;
+    use My::Base 'Plugin';
 
 =head2 Custom Arguments
 
