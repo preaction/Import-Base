@@ -17,7 +17,11 @@ sub modules {
     for my $pkg ( reverse @{ mro::get_linear_isa( $class ) } ) {
         no strict 'refs';
         no warnings 'once';
-        push @modules, @{ $pkg . "::IMPORT_MODULES" };
+
+        if ( !$args->{bundles_only} ) {
+            push @modules, @{ $pkg . "::IMPORT_MODULES" };
+        }
+
         my %bundles = %{ $pkg . "::IMPORT_BUNDLES" };
         push @modules, map { @{ $bundles{ $_ } } }
             grep { exists $bundles{ $_ } }
@@ -27,7 +31,7 @@ sub modules {
     return @modules;
 }
 
-sub import {
+sub _parse_args {
     my ( $class, @args ) = @_;
     my @bundles;
     while ( @args ) {
@@ -35,26 +39,55 @@ sub import {
         push @bundles, shift @args;
     }
     my %args = @args;
+    return ( \@bundles, \%args );
+}
+
+sub import_bundle {
+    my ( $class, @args ) = @_;
+    my ( $bundles, $args ) = $class->_parse_args( @args );
+
+    # Add internal Import::Base args
+    $args->{package} = scalar caller(0);
+    $args->{bundles_only} = 1;
+
+    my @modules = $class->modules( $bundles, $args );
+    $class->_import_modules( \@modules, $bundles, $args );
+}
+
+sub import {
+    my ( $class, @args ) = @_;
+    my ( $bundles, $args ) = $class->_parse_args( @args );
+
+    # Add internal Import::Base args
+    $args->{package} = scalar caller(0);
+
+    my @modules = $class->modules( $bundles, $args );
+    $class->_import_modules( \@modules, $bundles, $args );
+}
+
+sub _import_modules {
+    my ( $class, $modules, $bundles, $args ) = @_;
 
     die "Argument to -exclude must be arrayref"
-        if $args{-exclude} && ref $args{-exclude} ne 'ARRAY';
+        if $args->{-exclude} && ref $args->{-exclude} ne 'ARRAY';
     my $exclude = {};
-    if ( $args{-exclude} ) {
-        while ( @{ $args{-exclude} } ) {
-            my $module = shift @{ $args{-exclude} };
-            my $subs = ref $args{-exclude}[0] eq 'ARRAY' ? shift @{ $args{-exclude} } : undef;
+    if ( $args->{-exclude} ) {
+        while ( @{ $args->{-exclude} } ) {
+            my $module = shift @{ $args->{-exclude} };
+            my $subs = ref $args->{-exclude}[0] eq 'ARRAY' ? shift @{ $args->{-exclude} } : undef;
             $exclude->{ $module } = $subs;
         }
     }
 
     # Add internal Import::Base args
-    $args{package} = scalar caller(0);
+    $args->{package} ||= scalar caller(0);
+
+    my @modules = @$modules;
+    my @cb_args = ( $bundles, $args );
 
     # Prepare the modules to load
     # First pass determines the order to load
     my ( @first_load, @last_load );
-    my @cb_args = ( \@bundles, \%args );
-    my @modules = $class->modules( @cb_args );
     while ( @modules ) {
         if ( ref $modules[0] eq 'CODE' ) {
             push @first_load, shift @modules;
@@ -109,7 +142,7 @@ sub import {
             $module =~ s/^-//;
         }
 
-        use_module( $module )->$method( 1, @{ $imports } );
+        use_module( $module )->$method( 2, @{ $imports } );
     }
 }
 
@@ -410,6 +443,10 @@ Here's an example for applying a L<Moo::Role> when importing a bundle:
     package My::Custom::Plugin;
     use My::Base 'Plugin';
 
+B<NOTE:> This sub is still being called during the compile phase. If you need your
+role to be applied later, if you get errors when trying to apply it at compile time,
+use L<the import_bundle method|/import_bundle>, below.
+
 =head2 Custom Arguments
 
 When using L</"Subref Callbacks">, you can add additional arguments to the
@@ -464,6 +501,16 @@ Prepare the list of modules to import. $bundles is an array ref of bundles, if a
 $args is a hash ref of generic arguments, if any.
 
 Returns a list of MODULE => [ import() args ]. MODULE may appear multiple times.
+
+=head2 import_bundle( @bundles, @args )
+
+Import a bundle at runtime. This method takes the exact same arguments as in
+the C<use My::Base ...> compile-time API, but allows it to happen at runtime,
+so that all of the current package's subs have been made available, and all
+C<BEGIN> blocks have been executed.
+
+This is useful when using bundles to apply roles that have dependencies or
+other esoteric use-cases. It is not necessary for most things.
 
 =head1 DOCUMENTATION BOILERPLATE
 
