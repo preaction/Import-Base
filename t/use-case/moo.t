@@ -20,5 +20,34 @@ subtest 'apply roles via subref' => sub {
     ok usecase::applyrole->DOES( 'UseCase::Moo::ApplyRole::Role' ), 'role was applied';
 };
 
+subtest 'role requires attribute to exist' => sub {
+    subtest 'cannot apply role at compile time' => sub {
+        my $warn;
+        local $SIG{__WARN__} = sub { $warn = $_[0] };
+        eval q{
+            package usecase::rolewithrequires;
+            use UseCase::Moo::ApplyRole 'WithRequires';
+            has my_attr => ( is => 'ro' );
+        };
+        delete $SIG{__WARN__};
+
+        like $@, qr/Can't apply UseCase::Moo::ApplyRole::WithRequires/;
+    };
+
+    my $warn;
+    local $SIG{__WARN__} = sub { $warn = $_[0] };
+    eval q{
+        package usecase::rolewithrequires;
+        use UseCase::Moo::ApplyRole;
+        has my_attr => ( is => 'ro' );
+        UseCase::Moo::ApplyRole->import_bundle( 'WithRequires' );
+    };
+    delete $SIG{__WARN__};
+
+    ok !$@, 'lived' or diag $@;
+    ok !$warn, 'no warnings' or diag $warn;
+    ok usecase::applyrole->DOES( 'UseCase::Moo::ApplyRole::Role' ), 'role was applied';
+};
+
 done_testing;
 
