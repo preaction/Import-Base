@@ -2,7 +2,7 @@ NAME
     Import::Base - Import a set of modules into the calling module
 
 VERSION
-    version 0.011
+    version 0.012
 
 SYNOPSIS
         ### Static API
@@ -291,6 +291,10 @@ USAGE
         package My::Custom::Plugin;
         use My::Base 'Plugin';
 
+    NOTE: This sub is still being called during the compile phase. If you
+    need your role to be applied later, if you get errors when trying to
+    apply it at compile time, use the import_bundle method, below.
+
   Custom Arguments
     When using "Subref Callbacks", you can add additional arguments to the
     "use" line. The arguments list starts after the first key that starts
@@ -344,6 +348,15 @@ METHODS
 
     Returns a list of MODULE => [ import() args ]. MODULE may appear
     multiple times.
+
+  import_bundle( @bundles, @args )
+    Import a bundle at runtime. This method takes the exact same arguments
+    as in the "use My::Base ..." compile-time API, but allows it to happen
+    at runtime, so that all of the current package's subs have been made
+    available, and all "BEGIN" blocks have been executed.
+
+    This is useful when using bundles to apply roles that have dependencies
+    or other esoteric use-cases. It is not necessary for most things.
 
 DOCUMENTATION BOILERPLATE
     Here is an example for documenting your own base modules

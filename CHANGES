@@ -1,6 +1,10 @@
 Changelog for Import-Base
 
-0.011 2015-02-09T01:42:48
+0.012 2015-02-17T02:23:55
+ - add use-case test for a role with requires
+ - add import_bundle to import bundles at runtime
+
+0.011 2015-02-09T01:42:48Z
  - run subref callbacks during the import process
  - remove feature allowing subs to make import array
  - add dzil plugin for prereqs and compile tests

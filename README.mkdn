@@ -4,7 +4,7 @@ Import::Base - Import a set of modules into the calling module
 
 # VERSION
 
-version 0.011
+version 0.012
 
 # STATUS
 
@@ -304,6 +304,10 @@ Here's an example for applying a [Moo::Role](https://metacpan.org/pod/Moo::Role)
     package My::Custom::Plugin;
     use My::Base 'Plugin';
 
+**NOTE:** This sub is still being called during the compile phase. If you need your
+role to be applied later, if you get errors when trying to apply it at compile time,
+use [the import\_bundle method](#import_bundle), below.
+
 ## Custom Arguments
 
 When using ["Subref Callbacks"](#subref-callbacks), you can add additional arguments to the
@@ -358,6 +362,16 @@ Prepare the list of modules to import. $bundles is an array ref of bundles, if a
 $args is a hash ref of generic arguments, if any.
 
 Returns a list of MODULE => \[ import() args \]. MODULE may appear multiple times.
+
+## import\_bundle( @bundles, @args )
+
+Import a bundle at runtime. This method takes the exact same arguments as in
+the `use My::Base ...` compile-time API, but allows it to happen at runtime,
+so that all of the current package's subs have been made available, and all
+`BEGIN` blocks have been executed.
+
+This is useful when using bundles to apply roles that have dependencies or
+other esoteric use-cases. It is not necessary for most things.
 
 # DOCUMENTATION BOILERPLATE
 
