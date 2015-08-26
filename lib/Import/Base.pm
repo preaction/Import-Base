@@ -94,32 +94,57 @@ sub _import_modules {
             next;
         }
 
-        my $module = shift @modules;
+        my $thing = shift @modules;
+        my $module;
+        my $version;
+        if ( ref $thing eq 'HASH' ) {
+            ( $module, $version ) = %$thing;
+        }
+        else {
+            $module = $thing;
+        }
         my $imports = ref $modules[0] eq 'ARRAY' ? shift @modules : [];
 
         # Determine the module order
         if ( $module =~ /^</ ) {
             $module =~ s/^<//;
-            unshift @first_load, $module => $imports;
+            if ( defined $version ) {
+                unshift @first_load, { $module => $version } => $imports;
+            }
+            else {
+                unshift @first_load, $module => $imports;
+            }
         }
         elsif ( $module =~ /^>/ ) {
             $module =~ s/^>//;
-            push @last_load, $module => $imports;
+            if ( defined $version ) {
+                push @last_load, { $module => $version } => $imports;
+            }
+            else {
+                push @last_load, $module => $imports;
+            }
         }
         else {
-            push @first_load, $module => $imports;
+            push @first_load, $thing => $imports;
         }
     }
 
     # Second pass loads the modules
     my @loads = ( @first_load, @last_load );
     while ( my $load = shift @loads ) {
+        my $module;
+        my $version;
         if ( ref $load eq 'CODE' ) {
             unshift @loads, $load->( @cb_args );
             next;
         }
+        elsif ( ref $load eq 'HASH' ) {
+            ( $module, $version ) = %$load;
+        }
+        else {
+            $module = $load;
+        }
 
-        my $module = $load;
         my $imports = ref $loads[0] eq 'ARRAY' ? shift @loads : [];
 
         if ( exists $exclude->{ $module } ) {
@@ -142,7 +167,13 @@ sub _import_modules {
             $module =~ s/^-//;
         }
 
-        use_module( $module )->$method( 2, @{ $imports } );
+        use_module( $module );
+        if ( defined $version ) {
+            $module->$method( { level => 2, version => $version }, @{ $imports } );
+        }
+        else {
+            $module->$method( 2, @{ $imports } );
+        }
     }
 }
 
@@ -163,6 +194,8 @@ __END__
         'My::Exporter' => [ 'foo', 'bar', 'baz' ],
         # Disable uninitialized warnings
         '-warnings' => [qw( uninitialized )],
+        # Test for minimum version
+        { 'Getopt::Long' => 2.31 },
         # Callback to generate modules to import
         sub {
             my ( $bundles, $args ) = @_;
@@ -318,6 +351,28 @@ instead of C<use>.
 
 Now the warnings for using the 5.20 subroutine signatures feature will be
 disabled.
+
+=head2 Version Check
+
+The standard Perl C<use> function allows for a version check at compile
+time to ensure that a module is at least a minimum version.
+
+    # Require Getopt::Long version 2.31 or higher
+    use Getopt::Long 2.31;
+
+Generally, you should be declaring your dependency with the correct version,
+but some modules (like Getopt::Long) change their behavior based on what
+version you ask for.
+
+To ask for a specific version, use a hashref with the key is the module and
+the value as the required version.
+
+    our @IMPORT_MODULES = (
+        # Require a minimum version
+        { 'Getopt::Long' => 2.31 },
+        # Version and imports
+        { 'File::Spec::Functions' => 3.47 } => [qw( catfile )],
+    );
 
 =head2 -exclude
 
