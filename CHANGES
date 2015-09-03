@@ -1,6 +1,13 @@
 Changelog for Import-Base
 
-0.012 2015-02-17T02:23:55
+0.013 2015-09-03T03:36:35
+ - upgrade Import::Into to fix target
+ - add version check during import with hashref
+ - upgrade perl in travis config
+ - remove ModuleBuild to prevent toolchain confusion
+ - add link to #beam IRC channel
+
+0.012 2015-02-17T02:23:55Z
  - add use-case test for a role with requires
  - add import_bundle to import bundles at runtime
 

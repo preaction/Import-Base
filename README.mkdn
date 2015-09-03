@@ -4,7 +4,7 @@ Import::Base - Import a set of modules into the calling module
 
 # VERSION
 
-version 0.012
+version 0.013
 
 # STATUS
 
@@ -24,6 +24,8 @@ version 0.012
         'My::Exporter' => [ 'foo', 'bar', 'baz' ],
         # Disable uninitialized warnings
         '-warnings' => [qw( uninitialized )],
+        # Test for minimum version
+        { 'Getopt::Long' => 2.31 },
         # Callback to generate modules to import
         sub {
             my ( $bundles, $args ) = @_;
@@ -179,6 +181,28 @@ instead of `use`.
 
 Now the warnings for using the 5.20 subroutine signatures feature will be
 disabled.
+
+## Version Check
+
+The standard Perl `use` function allows for a version check at compile
+time to ensure that a module is at least a minimum version.
+
+    # Require Getopt::Long version 2.31 or higher
+    use Getopt::Long 2.31;
+
+Generally, you should be declaring your dependency with the correct version,
+but some modules (like Getopt::Long) change their behavior based on what
+version you ask for.
+
+To ask for a specific version, use a hashref with the key is the module and
+the value as the required version.
+
+    our @IMPORT_MODULES = (
+        # Require a minimum version
+        { 'Getopt::Long' => 2.31 },
+        # Version and imports
+        { 'File::Spec::Functions' => 3.47 } => [qw( catfile )],
+    );
 
 ## -exclude
 
