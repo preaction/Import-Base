@@ -4,7 +4,7 @@ Import::Base - Import a set of modules into the calling module
 
 # VERSION
 
-version 0.013
+version 0.014
 
 # STATUS
 
@@ -175,7 +175,7 @@ instead of `use`.
     our @IMPORT_MODULES = (
         'strict',
         'warnings',
-        feature => [qw( :5.20 )],
+        feature => [qw( :5.20 signatures )],
         '-warnings' => [qw( experimental::signatures )],
     );
 
@@ -309,7 +309,8 @@ Using `package`, a subref could check or alter `@ISA`, work with the object's
 metaclass (if you're using one), or export additional symbols not set up for
 export.
 
-Here's an example for applying a [Moo::Role](https://metacpan.org/pod/Moo::Role) when importing a bundle:
+Here's an example for applying a role ([Moo::Role](https://metacpan.org/pod/Moo::Role), [Role::Tiny](https://metacpan.org/pod/Role::Tiny),
+[Moose::Role](https://metacpan.org/pod/Moose::Role), and anything that uses `with`) when importing a bundle:
 
     package My::Base;
     use base 'Import::Base';
@@ -319,7 +320,7 @@ Here's an example for applying a [Moo::Role](https://metacpan.org/pod/Moo::Role)
             # Plugins require the "My::Plugin" role
             sub {
                 my ( $bundles, $args ) = @_;
-                Moo::Role->apply_role_to_package( $args->{package}, 'My::Plugin' );
+                $args->{package}->can( 'with' )->( 'My::Plugin' );
                 return;
             },
         ],
@@ -517,13 +518,19 @@ authors.
 - [perl5](https://metacpan.org/pod/perl5)
 
     This module is very similar, and has a bunch of built-in bundles and features for
-    quickly importing Perl feature sets.
+    quickly importing Perl feature sets. It is also flexible, allowing you to specify
+    your own module bundles.
 
 - [ToolSet](https://metacpan.org/pod/ToolSet)
 
-    This is very similar, but does not appear to allow subclasses to remove imports from
-    the list of things to be imported. By having the module list be a static array, we
-    can modify it further in more levels of subclasses.
+    ToolSet is very similar. Its API just uses package methods instead of package
+    variables. It also allows for exporting symbols directly from the bundle,
+    something Import::Base does not yet allow (patches welcome).
+
+- [sanity](https://metacpan.org/pod/sanity)
+
+    Sanity is more consise, but not as flexible. If you don't need the wild
+    flexibility of Import::Base or the above solutions, take a look.
 
 - [Toolkit](https://metacpan.org/pod/Toolkit)
 

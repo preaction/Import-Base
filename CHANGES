@@ -1,6 +1,11 @@
 Changelog for Import-Base
 
-0.013 2015-09-03T03:36:35
+0.014 2015-09-07T23:47:18
+ - neutralize the see also and add sanity.pm
+ - fix role example to remove need to preload role
+ - enable signatures before disabling warning in docs
+
+0.013 2015-09-03T03:36:35Z
  - upgrade Import::Into to fix target
  - add version check during import with hashref
  - upgrade perl in travis config
