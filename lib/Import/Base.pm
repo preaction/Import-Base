@@ -479,7 +479,8 @@ Using C<package>, a subref could check or alter C<@ISA>, work with the object's
 metaclass (if you're using one), or export additional symbols not set up for
 export.
 
-Here's an example for applying a L<Moo::Role> when importing a bundle:
+Here's an example for applying a role (L<Moo::Role>, L<Role::Tiny>,
+L<Moose::Role>, and anything that uses C<with>) when importing a bundle:
 
     package My::Base;
     use base 'Import::Base';
@@ -489,7 +490,7 @@ Here's an example for applying a L<Moo::Role> when importing a bundle:
             # Plugins require the "My::Plugin" role
             sub {
                 my ( $bundles, $args ) = @_;
-                Moo::Role->apply_role_to_package( $args->{package}, 'My::Plugin' );
+                $args->{package}->can( 'with' )->( 'My::Plugin' );
                 return;
             },
         ],
