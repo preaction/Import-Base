@@ -690,13 +690,19 @@ doesn't do what you want, look at Import::Into to build your own.
 =item L<perl5|perl5>
 
 This module is very similar, and has a bunch of built-in bundles and features for
-quickly importing Perl feature sets.
+quickly importing Perl feature sets. It is also flexible, allowing you to specify
+your own module bundles.
 
 =item L<ToolSet|ToolSet>
 
-This is very similar, but does not appear to allow subclasses to remove imports from
-the list of things to be imported. By having the module list be a static array, we
-can modify it further in more levels of subclasses.
+ToolSet is very similar. Its API just uses package methods instead of package
+variables. It also allows for exporting symbols directly from the bundle,
+something Import::Base does not yet allow (patches welcome).
+
+=item L<sanity|sanity>
+
+Sanity is more consise, but not as flexible. If you don't need the wild
+flexibility of Import::Base or the above solutions, take a look.
 
 =item L<Toolkit|Toolkit>
 
