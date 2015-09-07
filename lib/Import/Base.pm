@@ -345,7 +345,7 @@ instead of C<use>.
     our @IMPORT_MODULES = (
         'strict',
         'warnings',
-        feature => [qw( :5.20 )],
+        feature => [qw( :5.20 signatures )],
         '-warnings' => [qw( experimental::signatures )],
     );
 
