@@ -714,6 +714,28 @@ Having to track down another project to figure out what modules are active in
 the current package is a lot of work, creating frustration for contributing
 authors.
 
+=head1 KNOWN ISSUES
+
+=over 4
+
+=item Moo::Role does not work if base module shares the same file as role package
+
+When trying to import L<Moo::Role> using Import::Base, the role will not
+be applied if it shares the same file as the Import::Base module. For
+safety and sanity, you should keep your Import::Base module separate
+from classes and roles.
+
+=item Dancer plugins do not work when applied with Import::Base
+
+Dancer plugins check, at compile time, to see if they can be imported into
+the consuming class by looking for the Dancer DSL. Because Import::Base uses
+Module::Runtime to load the class, Dancer::Plugin thinks Module::Runtime is
+the calling class, sees there is no DSL to register itself with, and bails.
+
+See L<https://github.com/PerlDancer/Dancer2/pull/1136> for more information.
+
+=back
+
 =head1 SEE ALSO
 
 =over
