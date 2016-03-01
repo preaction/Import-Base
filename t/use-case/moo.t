@@ -11,7 +11,7 @@ subtest 'apply roles via subref' => sub {
     local $SIG{__WARN__} = sub { $warn = $_[0] };
     eval q{
         package usecase::applyrole;
-        use UseCase::Moo::ApplyRole 'Plugin';
+        use UseCase::Moo::ApplyRole 'Class', 'Plugin';
     };
     delete $SIG{__WARN__};
 
@@ -26,7 +26,7 @@ subtest 'role requires attribute to exist' => sub {
         local $SIG{__WARN__} = sub { $warn = $_[0] };
         eval q{
             package usecase::rolewithrequires;
-            use UseCase::Moo::ApplyRole 'WithRequires';
+            use UseCase::Moo::ApplyRole 'Class', 'WithRequires';
             has my_attr => ( is => 'ro' );
         };
         delete $SIG{__WARN__};
@@ -38,7 +38,7 @@ subtest 'role requires attribute to exist' => sub {
     local $SIG{__WARN__} = sub { $warn = $_[0] };
     eval q{
         package usecase::rolewithrequires;
-        use UseCase::Moo::ApplyRole;
+        use UseCase::Moo::ApplyRole 'Class';
         has my_attr => ( is => 'ro' );
         UseCase::Moo::ApplyRole->import_bundle( 'WithRequires' );
     };

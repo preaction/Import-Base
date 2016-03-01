@@ -6,11 +6,8 @@ use warnings;
 use Test::More;
 use base 'Import::Base';
 
-our @IMPORT_MODULES = (
-    'Moo',
-);
-
 our %IMPORT_BUNDLES = (
+    'Class' => [ 'Moo' ],
     'Plugin' => [
         sub {
             my ( $bundles, $args ) = @_;
@@ -25,6 +22,7 @@ our %IMPORT_BUNDLES = (
             ();
         },
     ],
+    'Role' => [ 'Moo::Role' ],
 );
 
 1;

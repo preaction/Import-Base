@@ -1,6 +1,6 @@
 package
     UseCase::Moo::ApplyRole::Role;
-use Moo::Role;
+use UseCase::Moo::ApplyRole 'Role';
 around BUILDARGS => sub { };
 
 1;

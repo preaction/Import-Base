@@ -1,7 +1,7 @@
 package
     UseCase::Moo::ApplyRole::WithRequires;
 
-use Moo::Role;
+use UseCase::Moo::ApplyRole 'Role';
 requires 'my_attr';
 
 1;
