@@ -7,6 +7,10 @@ use mro ();
 use Import::Into;
 use Module::Runtime qw( use_module );
 
+require Exporter;
+
+our @ISA = qw(Exporter);
+
 sub modules {
     my ( $class, $bundles, $args ) = @_;
     my @modules = ();
@@ -165,6 +169,12 @@ sub _import_modules {
         if ( $module =~ /^-/ ) {
             $method = 'unimport::out_of';
             $module =~ s/^-//;
+        }
+
+        if ($module->isa("Import::Base")) {
+            $module->export_to_level( 2, $module, @{ $imports } );
+
+            next;
         }
 
         use_module( $module );
@@ -549,6 +559,32 @@ Using the above boilerplate will ensure that you start with all the basic functi
 One advantage the dynamic API has is the ability to remove modules from superclasses, or
 completely control the order that modules are imported, even from superclasses.
 
+=head2 Exporting symbols from the base class
+
+Import::Base inherits from Exporter and allows for EXPORT_OK usage.
+
+    package My::Base;
+    use base 'Import::Base';
+
+    our @EXPORT_OK = qw($joy);
+
+    our @IMPORT_MODULES = (
+        'strict',
+        'warnings',
+        feature => [qw( :5.10 )],
+        'My::Base' => [qw( $joy )],
+    );
+
+    our $joy = "Is everywhere";
+
+    package main;
+
+    use My::Base;
+
+    say $joy;
+
+Notice how the base class 'My::Base' is in it's own IMPORT_MODULES definition.
+
 =head1 METHODS
 
 =head2 modules( $bundles, $args )
@@ -696,8 +732,7 @@ your own module bundles.
 =item L<ToolSet|ToolSet>
 
 ToolSet is very similar. Its API just uses package methods instead of package
-variables. It also allows for exporting symbols directly from the bundle,
-something Import::Base does not yet allow (patches welcome).
+variables. It also allows for exporting symbols directly from the bundle.
 
 =item L<sanity|sanity>
 
