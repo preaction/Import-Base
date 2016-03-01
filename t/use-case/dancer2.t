@@ -5,6 +5,7 @@ use lib 't/lib';
 use Test::More;
 
 BEGIN { eval 'require Dancer2; 1' or plan skip_all => 'Test requires Dancer2' };
+BEGIN { eval 'require Dancer2::Plugin::Ajax; 1' or plan skip_all => 'Test requires Dancer2::Plugin::Ajax' };
 
 use Test::More;
 
