@@ -1,6 +1,13 @@
 Changelog for Import-Base
 
-0.014 2015-09-07T23:47:18
+1.000 2016-03-01T03:52:23
+ - mention known issues
+ - add use-case test for Dancer2
+ - test that moo roles can be built with bundles
+ - refer to the Importer module for renames
+ - allow exporting symbols in the base module
+
+0.014 2015-09-07T23:47:18Z
  - neutralize the see also and add sanity.pm
  - fix role example to remove need to preload role
  - enable signatures before disabling warning in docs

@@ -163,7 +163,7 @@ instead of C<use>.
     our @IMPORT_MODULES = (
         'strict',
         'warnings',
-        feature => [qw( :5.20 )],
+        feature => [qw( :5.20 signatures )],
         '-warnings' => [qw( experimental::signatures )],
     );
 
@@ -297,7 +297,8 @@ Using C<package>, a subref could check or alter C<@ISA>, work with the object's
 metaclass (if you're using one), or export additional symbols not set up for
 export.
 
-Here's an example for applying a L<Moo::Role> when importing a bundle:
+Here's an example for applying a role (L<Moo::Role>, L<Role::Tiny>,
+L<Moose::Role>, and anything that uses C<with>) when importing a bundle:
 
     package My::Base;
     use base 'Import::Base';
@@ -307,7 +308,7 @@ Here's an example for applying a L<Moo::Role> when importing a bundle:
             # Plugins require the "My::Plugin" role
             sub {
                 my ( $bundles, $args ) = @_;
-                Moo::Role->apply_role_to_package( $args->{package}, 'My::Plugin' );
+                $args->{package}->can( 'with' )->( 'My::Plugin' );
                 return;
             },
         ],
@@ -365,6 +366,32 @@ Using the above boilerplate will ensure that you start with all the basic functi
 
 One advantage the dynamic API has is the ability to remove modules from superclasses, or
 completely control the order that modules are imported, even from superclasses.
+
+=head2 Exporting symbols from the base class
+
+Import::Base inherits from Exporter and allows for EXPORT_OK usage.
+
+    package My::Base;
+    use base 'Import::Base';
+
+    our @EXPORT_OK = qw($joy);
+
+    our @IMPORT_MODULES = (
+        'strict',
+        'warnings',
+        feature => [qw( :5.10 )],
+        'My::Base' => [qw( $joy )],
+    );
+
+    our $joy = "Is everywhere";
+
+    package main;
+
+    use My::Base;
+
+    say $joy;
+
+Notice how the base class 'My::Base' is in it's own IMPORT_MODULES definition.
 
 =head1 METHODS
 
@@ -495,6 +522,28 @@ Having to track down another project to figure out what modules are active in
 the current package is a lot of work, creating frustration for contributing
 authors.
 
+=head1 KNOWN ISSUES
+
+=over 4
+
+=item Moo::Role does not work if base module shares the same file as role package
+
+When trying to import L<Moo::Role> using Import::Base, the role will not
+be applied if it shares the same file as the Import::Base module. For
+safety and sanity, you should keep your Import::Base module separate
+from classes and roles.
+
+=item Dancer plugins do not work when applied with Import::Base
+
+Dancer plugins check, at compile time, to see if they can be imported into
+the consuming class by looking for the Dancer DSL. Because Import::Base uses
+Module::Runtime to load the class, Dancer::Plugin thinks Module::Runtime is
+the calling class, sees there is no DSL to register itself with, and bails.
+
+See L<https://github.com/PerlDancer/Dancer2/pull/1136> for more information.
+
+=back
+
 =head1 SEE ALSO
 
 =over
@@ -504,16 +553,27 @@ authors.
 The module that provides the functionality to create this module. If Import::Base
 doesn't do what you want, look at Import::Into to build your own.
 
+=item L<Importer|Importer>
+
+This module wraps the C<import> method of other modules, allowing you to rename
+the symbols you import. If you need to change a name, use this module together
+with Import::Base.
+
 =item L<perl5|perl5>
 
 This module is very similar, and has a bunch of built-in bundles and features for
-quickly importing Perl feature sets.
+quickly importing Perl feature sets. It is also flexible, allowing you to specify
+your own module bundles.
 
 =item L<ToolSet|ToolSet>
 
-This is very similar, but does not appear to allow subclasses to remove imports from
-the list of things to be imported. By having the module list be a static array, we
-can modify it further in more levels of subclasses.
+ToolSet is very similar. Its API just uses package methods instead of package
+variables. It also allows for exporting symbols directly from the bundle.
+
+=item L<sanity|sanity>
+
+Sanity is more consise, but not as flexible. If you don't need the wild
+flexibility of Import::Base or the above solutions, take a look.
 
 =item L<Toolkit|Toolkit>
 

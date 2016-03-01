@@ -4,7 +4,7 @@ Import::Base - Import a set of modules into the calling module
 
 # VERSION
 
-version 0.014
+version 1.000
 
 # STATUS
 
@@ -379,6 +379,32 @@ Using the above boilerplate will ensure that you start with all the basic functi
 One advantage the dynamic API has is the ability to remove modules from superclasses, or
 completely control the order that modules are imported, even from superclasses.
 
+## Exporting symbols from the base class
+
+Import::Base inherits from Exporter and allows for EXPORT\_OK usage.
+
+    package My::Base;
+    use base 'Import::Base';
+
+    our @EXPORT_OK = qw($joy);
+
+    our @IMPORT_MODULES = (
+        'strict',
+        'warnings',
+        feature => [qw( :5.10 )],
+        'My::Base' => [qw( $joy )],
+    );
+
+    our $joy = "Is everywhere";
+
+    package main;
+
+    use My::Base;
+
+    say $joy;
+
+Notice how the base class 'My::Base' is in it's own IMPORT\_MODULES definition.
+
 # METHODS
 
 ## modules( $bundles, $args )
@@ -508,12 +534,36 @@ Having to track down another project to figure out what modules are active in
 the current package is a lot of work, creating frustration for contributing
 authors.
 
+# KNOWN ISSUES
+
+- Moo::Role does not work if base module shares the same file as role package
+
+    When trying to import [Moo::Role](https://metacpan.org/pod/Moo::Role) using Import::Base, the role will not
+    be applied if it shares the same file as the Import::Base module. For
+    safety and sanity, you should keep your Import::Base module separate
+    from classes and roles.
+
+- Dancer plugins do not work when applied with Import::Base
+
+    Dancer plugins check, at compile time, to see if they can be imported into
+    the consuming class by looking for the Dancer DSL. Because Import::Base uses
+    Module::Runtime to load the class, Dancer::Plugin thinks Module::Runtime is
+    the calling class, sees there is no DSL to register itself with, and bails.
+
+    See [https://github.com/PerlDancer/Dancer2/pull/1136](https://github.com/PerlDancer/Dancer2/pull/1136) for more information.
+
 # SEE ALSO
 
 - [Import::Into](https://metacpan.org/pod/Import::Into)
 
     The module that provides the functionality to create this module. If Import::Base
     doesn't do what you want, look at Import::Into to build your own.
+
+- [Importer](https://metacpan.org/pod/Importer)
+
+    This module wraps the `import` method of other modules, allowing you to rename
+    the symbols you import. If you need to change a name, use this module together
+    with Import::Base.
 
 - [perl5](https://metacpan.org/pod/perl5)
 
@@ -524,8 +574,7 @@ authors.
 - [ToolSet](https://metacpan.org/pod/ToolSet)
 
     ToolSet is very similar. Its API just uses package methods instead of package
-    variables. It also allows for exporting symbols directly from the bundle,
-    something Import::Base does not yet allow (patches welcome).
+    variables. It also allows for exporting symbols directly from the bundle.
 
 - [sanity](https://metacpan.org/pod/sanity)
 
@@ -543,6 +592,10 @@ authors.
 # AUTHOR
 
 Doug Bell <preaction@cpan.org>
+
+# CONTRIBUTOR
+
+Brian Medley <pub-github@bmedley.org>
 
 # COPYRIGHT AND LICENSE
 
