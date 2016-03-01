@@ -723,6 +723,12 @@ authors.
 The module that provides the functionality to create this module. If Import::Base
 doesn't do what you want, look at Import::Into to build your own.
 
+=item L<Importer|Importer>
+
+This module wraps the C<import> method of other modules, allowing you to rename
+the symbols you import. If you need to change a name, use this module together
+with Import::Base.
+
 =item L<perl5|perl5>
 
 This module is very similar, and has a bunch of built-in bundles and features for
