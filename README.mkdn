@@ -4,7 +4,7 @@ Import::Base - Import a set of modules into the calling module
 
 # VERSION
 
-version 1.001
+version 1.002
 
 # STATUS
 
@@ -56,7 +56,7 @@ version 1.001
     use My::Base 'Test';
     use My::Base 'Class';
 
-    # Exclude some things we don't want
+    # Exclude some modules and symbols we don't want
     use My::Base -exclude => [ 'warnings', 'My::Exporter' => [ 'bar' ] ];
 
 # DESCRIPTION
@@ -206,9 +206,9 @@ the value as the required version.
 
 ## -exclude
 
-When importing a base module, you can use `-exclude` to prevent certain things
-from being imported (if, for example, they would conflict with existing
-things).
+When importing a base module, you can use `-exclude` to prevent certain
+modules or symbols from being imported (if, for example, they would
+conflict with existing symbols).
 
     # Prevent the "warnings" module from being imported
     use My::Base -exclude => [ 'warnings' ];

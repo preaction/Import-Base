@@ -1,6 +1,10 @@
 Changelog for Import-Base
 
-1.001 2016-03-01T04:06:38
+1.002 2016-03-02T05:08:56
+ - clarify that exclude works on modules and symbols
+ - also check for Dancer2::Plugin::Ajax in test
+
+1.001 2016-03-01T04:06:38Z
  - fix test that requires Dancer2
 
 1.000 2016-03-01T03:52:23Z
