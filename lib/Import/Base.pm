@@ -236,7 +236,7 @@ __END__
     use My::Base 'Test';
     use My::Base 'Class';
 
-    # Exclude some things we don't want
+    # Exclude some modules and symbols we don't want
     use My::Base -exclude => [ 'warnings', 'My::Exporter' => [ 'bar' ] ];
 
 =head1 DESCRIPTION
@@ -386,9 +386,9 @@ the value as the required version.
 
 =head2 -exclude
 
-When importing a base module, you can use C<-exclude> to prevent certain things
-from being imported (if, for example, they would conflict with existing
-things).
+When importing a base module, you can use C<-exclude> to prevent certain
+modules or symbols from being imported (if, for example, they would
+conflict with existing symbols).
 
     # Prevent the "warnings" module from being imported
     use My::Base -exclude => [ 'warnings' ];
