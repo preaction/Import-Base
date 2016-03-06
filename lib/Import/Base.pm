@@ -37,40 +37,50 @@ sub modules {
 
 sub _parse_args {
     my ( $class, @args ) = @_;
-    my @bundles;
+    my ( @bundles, @exports );
     while ( @args ) {
         last if $args[0] =~ /^-/;
-        push @bundles, shift @args;
+        no strict 'refs';
+        if ( grep { $_ eq $args[0] } ( @{"${class}::EXPORT_OK"}, keys %{"${class}::EXPORT_TAGS"} ) ) {
+            push @exports, shift @args;
+        }
+        else {
+            push @bundles, shift @args;
+        }
     }
     my %args = @args;
-    return ( \@bundles, \%args );
+    return ( \@bundles, \@exports, \%args );
 }
 
 sub import_bundle {
     my ( $class, @args ) = @_;
-    my ( $bundles, $args ) = $class->_parse_args( @args );
+    my ( $bundles, $exports, $args ) = $class->_parse_args( @args );
 
     # Add internal Import::Base args
     $args->{package} = scalar caller(0);
     $args->{bundles_only} = 1;
 
     my @modules = $class->modules( $bundles, $args );
-    $class->_import_modules( \@modules, $bundles, $args );
+    $class->_import_modules( \@modules, $bundles, $exports, $args );
 }
 
 sub import {
     my ( $class, @args ) = @_;
-    my ( $bundles, $args ) = $class->_parse_args( @args );
+    my ( $bundles, $exports, $args ) = $class->_parse_args( @args );
 
     # Add internal Import::Base args
     $args->{package} = scalar caller(0);
 
     my @modules = $class->modules( $bundles, $args );
-    $class->_import_modules( \@modules, $bundles, $args );
+    $class->_import_modules( \@modules, $bundles, $exports, $args );
 }
 
 sub _import_modules {
-    my ( $class, $modules, $bundles, $args ) = @_;
+    my ( $class, $modules, $bundles, $exports, $args ) = @_;
+
+    if ( @$exports ) {
+        $class->export_to_level( 2, $class, @$exports );
+    }
 
     die "Argument to -exclude must be arrayref"
         if $args->{-exclude} && ref $args->{-exclude} ne 'ARRAY';
@@ -169,12 +179,6 @@ sub _import_modules {
         if ( $module =~ /^-/ ) {
             $method = 'unimport::out_of';
             $module =~ s/^-//;
-        }
-
-        if ($module->isa("Import::Base")) {
-            $module->export_to_level( 2, $module, @{ $imports } );
-
-            next;
         }
 
         use_module( $module );
