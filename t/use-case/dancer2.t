@@ -4,7 +4,7 @@ use warnings;
 use lib 't/lib';
 use Test::More;
 
-BEGIN { eval 'require Dancer2; 1' or plan skip_all => 'Test requires Dancer2' };
+BEGIN { eval 'require Dancer2; Dancer2->VERSION( 0.16600101 ); 1' or plan skip_all => 'Test requires Dancer2 >= 0.166001_01' };
 BEGIN { eval 'require Dancer2::Plugin::Ajax; 1' or plan skip_all => 'Test requires Dancer2::Plugin::Ajax' };
 
 use Test::More;
@@ -19,10 +19,7 @@ BEGIN { MyBase->import };
 
 can_ok( __PACKAGE__, 'dancer_version' );
 can_ok( __PACKAGE__, 'dsl' );
-{
-    local $TODO = "Test fails because Dancer2::Plugin does not work with Module::Runtime. See https://github.com/PerlDancer/Dancer2/pull/1136";
-    can_ok( __PACKAGE__, 'ajax' );
-}
+can_ok( __PACKAGE__, 'ajax' );
 
 done_testing;
 
