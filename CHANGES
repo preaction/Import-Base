@@ -1,5 +1,7 @@
 Changelog for Import-Base
 
+{{ $NEXT }}
+
 1.002 2016-03-02T05:08:56
  - clarify that exclude works on modules and symbols
  - also check for Dancer2::Plugin::Ajax in test
