@@ -1,6 +1,13 @@
 Changelog for Import-Base
 
-{{ $NEXT }}
+1.003     2017-02-16 14:09:34-06:00 America/Chicago
+
+    [Fixes]
+
+    - Update the documentation to show that the Dancer2::Plugin problem
+      was fixed months ago, and that users should upgrade to Dancer2
+      v0.200000 if they want to use Import::Base and Dancer2 plugins
+      together.
 
 1.002 2016-03-02T05:08:56
  - clarify that exclude works on modules and symbols

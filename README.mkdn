@@ -4,7 +4,7 @@ Import::Base - Import a set of modules into the calling module
 
 # VERSION
 
-version 1.002
+version 1.003
 
 # STATUS
 
@@ -550,7 +550,8 @@ authors.
     Module::Runtime to load the class, Dancer::Plugin thinks Module::Runtime is
     the calling class, sees there is no DSL to register itself with, and bails.
 
-    See [https://github.com/PerlDancer/Dancer2/pull/1136](https://github.com/PerlDancer/Dancer2/pull/1136) for more information.
+    This issue was fixed in Dancer2 v0.200000 (released 2016-05-31). See
+    [https://github.com/PerlDancer/Dancer2/pull/1136](https://github.com/PerlDancer/Dancer2/pull/1136) for more information.
 
 # SEE ALSO
 
@@ -593,13 +594,14 @@ authors.
 
 Doug Bell <preaction@cpan.org>
 
-# CONTRIBUTOR
+# CONTRIBUTORS
 
-Brian Medley <pub-github@bmedley.org>
+- Brian Medley <pub-github@bmedley.org>
+- Doug Bell <doug@preaction.me>
 
 # COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2015 by Doug Bell.
+This software is copyright (c) 2017 by Doug Bell.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
