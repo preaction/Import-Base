@@ -732,7 +732,8 @@ the consuming class by looking for the Dancer DSL. Because Import::Base uses
 Module::Runtime to load the class, Dancer::Plugin thinks Module::Runtime is
 the calling class, sees there is no DSL to register itself with, and bails.
 
-See L<https://github.com/PerlDancer/Dancer2/pull/1136> for more information.
+This issue was fixed in Dancer2 v0.200000 (released 2016-05-31). See
+L<https://github.com/PerlDancer/Dancer2/pull/1136> for more information.
 
 =back
 
