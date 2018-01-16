@@ -1,6 +1,6 @@
 package Import::Base;
 # ABSTRACT: Import a set of modules into the calling module
-our $VERSION = '1.004';
+our $VERSION = '1.005';
 
 use strict;
 use warnings;

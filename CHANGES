@@ -2,6 +2,8 @@ Changelog for Import-Base
 
 {{ $NEXT }}
 
+1.004     2018-01-16 13:18:57-06:00 America/Chicago
+
     [Fixed]
 
     - The documentation now recommends `use parent` instead of `use
